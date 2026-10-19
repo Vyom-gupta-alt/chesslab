@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChessLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body data-board="green">
+  <aside class="sidebar">
+    <a class="brand" href="#/dashboard"><span class="brand-mark">♞</span><span>ChessLab</span></a>
+    <nav class="nav">
+      <a href="#/dashboard" data-route="dashboard"><span class="ni">▦</span><span>Dashboard</span></a>
+      <a href="#/import" data-route="import"><span class="ni">⇩</span><span>Import</span></a>
+      <a href="#/games" data-route="games"><span class="ni">☰</span><span>My Games</span></a>
+      <a href="#/coach" data-route="coach"><span class="ni">🧑‍🏫</span><span>Coach</span></a>
+      <a href="#/rating" data-route="rating"><span class="ni">🔥</span><span>Rating Check</span></a>
+      <a href="#/openings" data-route="openings"><span class="ni">📖</span><span>Openings</span></a>
+      <a href="#/puzzles" data-route="puzzles"><span class="ni">✦</span><span>Puzzles</span><span class="badge" id="due-badge" hidden></span></a>
+      <a href="#/analysis" data-route="analysis"><span class="ni">⚲</span><span>Analysis Board</span></a>
+      <a href="#/goals" data-route="goals"><span class="ni">◎</span><span>Goals</span></a>
+      <a href="#/settings" data-route="settings"><span class="ni">⚙</span><span>Settings</span></a>
+    </nav>
+    <div class="side-status" id="analyzer-status" hidden></div>
+  </aside>
+  <main id="view" class="view"></main>
+  <div id="toasts"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
