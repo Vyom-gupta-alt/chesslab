@@ -4,8 +4,9 @@ import type { Syllabus } from "@/types/syllabus";
  * Placeholder syllabus shown before a guide has been uploaded.
  * Abridged from the IB Mathematics: Analysis & Approaches guide (first assessment 2021).
  */
-export const SAMPLE_SYLLABUS: Syllabus = {
+export const SAMPLE_DP_SYLLABUS: Syllabus = {
   id: "math-aa",
+  programme: "DP",
   subject: "Mathematics: Analysis and Approaches",
   level: "SL/HL",
   firstAssessment: "2021",

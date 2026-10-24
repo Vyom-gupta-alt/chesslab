@@ -1,12 +1,21 @@
 # IB Assess
 
-AssessPrep-style IB practice and assessment app: syllabus ingestion, AI-generated papers and markschemes, and an exam environment with Desmos tools.
+AssessPrep-style IB practice and assessment app for the **Diploma Programme (DP)** and **Middle Years Programme (MYP)**: syllabus ingestion, AI-generated papers and markschemes, and an exam environment with Desmos tools.
 
 Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui (Radix), Framer Motion, Zustand and Zod.
 
 ## Run it
 
+You need [Node.js 18 or newer](https://nodejs.org) and [Git](https://git-scm.com).
+
+**Windows:** clone the repo, open the `ib-assess` folder and double-click `start.bat`. It installs packages the first time and opens http://localhost:3000.
+
+**Any OS:**
+
 ```bash
+git clone https://github.com/vyom-gupta-alt/chesslab.git
+cd chesslab
+git checkout claude/great-maxwell-cbfdif   # until this branch is merged
 cd ib-assess
 cp .env.example .env.local   # optional: add your own Desmos key
 npm install
@@ -14,6 +23,17 @@ npm run dev                  # http://localhost:3000
 ```
 
 `npm run typecheck`, `npm run lint` and `npm run build` should all pass.
+
+## DP and MYP
+
+Switch programme with the **DP / MYP** toggle at the top of the sidebar. Each programme keeps its own active syllabus.
+
+| | DP | MYP |
+| --- | --- | --- |
+| Levels | SL / HL / AHL | Standard / Extended |
+| Assessment | Papers 1–3, IA criteria | Criteria A–D, each 0–8 |
+| Final grade | 1–7 from % boundaries | 1–7 from total /32 (`lib/grading.ts`) |
+| Extra syllabus data | — | Key concepts, related concepts, global contexts |
 
 ## Build status
 

@@ -8,7 +8,8 @@ export default function ExamPage() {
       points={[
         "Split screen: stimulus / data booklet / Desmos on the left, question and answer editor on the right",
         "Timer, formula sheet popup, scratchpad",
-        "AI grading against the markscheme and a 1–7 grade prediction",
+        "DP: AI grading against the markscheme and a 1–7 grade prediction from percentage boundaries",
+        "MYP: AI levels 0–8 per criterion (A–D), summed out of 32 and converted to a 1–7 grade",
       ]}
     />
   );

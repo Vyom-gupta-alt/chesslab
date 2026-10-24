@@ -2,9 +2,10 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Syllabus } from "@/types/syllabus";
+import type { Programme, Syllabus } from "@/types/syllabus";
 import type { DesmosState } from "@/types/desmos";
-import { SAMPLE_SYLLABUS } from "@/data/sample-syllabus";
+import { SAMPLE_DP_SYLLABUS } from "@/data/sample-syllabus";
+import { SAMPLE_MYP_SYLLABUS } from "@/data/sample-myp-syllabus";
 import { uid } from "@/lib/utils";
 
 /** localStorage that never throws (private mode, quota exceeded by screenshots, SSR). */
@@ -55,9 +56,12 @@ interface AppState {
   loadIntoCalculator: (kind: CalculatorKind, state: DesmosState) => void;
   clearPendingLoad: () => void;
 
-  // Syllabus
-  syllabus: Syllabus;
+  // Programme & syllabus (one active syllabus per programme)
+  programme: Programme;
+  setProgramme: (p: Programme) => void;
+  syllabi: Record<Programme, Syllabus>;
   selectedSubtopicId: string | null;
+  /** Stores the syllabus under its own programme and switches to it. */
   setSyllabus: (s: Syllabus) => void;
   selectSubtopic: (id: string | null) => void;
 
@@ -95,9 +99,16 @@ export const useAppStore = create<AppState>()(
         set({ pendingLoad: { kind, state, nonce: Date.now() }, calculatorOpen: true, calculatorKind: kind }),
       clearPendingLoad: () => set({ pendingLoad: null }),
 
-      syllabus: SAMPLE_SYLLABUS,
+      programme: "DP",
+      setProgramme: (programme) => set({ programme, selectedSubtopicId: null }),
+      syllabi: { DP: SAMPLE_DP_SYLLABUS, MYP: SAMPLE_MYP_SYLLABUS },
       selectedSubtopicId: null,
-      setSyllabus: (syllabus) => set({ syllabus, selectedSubtopicId: null }),
+      setSyllabus: (syllabus) =>
+        set((s) => ({
+          syllabi: { ...s.syllabi, [syllabus.programme]: syllabus },
+          programme: syllabus.programme,
+          selectedSubtopicId: null,
+        })),
       selectSubtopic: (id) => set({ selectedSubtopicId: id }),
 
       answerText: "",
@@ -109,7 +120,17 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "ib-assess",
-      version: 1,
+      version: 2,
+      // v1 stored a single DP `syllabus`; v2 keeps one per programme.
+      migrate: (persisted, version) => {
+        const old = (persisted ?? {}) as Record<string, unknown>;
+        if (version < 2) {
+          const { syllabus, ...rest } = old as { syllabus?: Syllabus };
+          const dp = syllabus ? { ...syllabus, programme: "DP" as const } : SAMPLE_DP_SYLLABUS;
+          return { ...rest, programme: "DP", syllabi: { DP: dp, MYP: SAMPLE_MYP_SYLLABUS } };
+        }
+        return old;
+      },
       storage: createJSONStorage(() => safeStorage),
       // Rehydrated manually in <AppShell> after mount so SSR markup matches the first client render.
       skipHydration: true,
@@ -119,10 +140,14 @@ export const useAppStore = create<AppState>()(
         calculatorKind: s.calculatorKind,
         calculatorWide: s.calculatorWide,
         calculatorStates: s.calculatorStates,
-        syllabus: s.syllabus,
+        programme: s.programme,
+        syllabi: s.syllabi,
         answerText: s.answerText,
         attachments: s.attachments,
       }),
     },
   ),
 );
+
+/** The syllabus for the currently selected programme. */
+export const useActiveSyllabus = () => useAppStore((s) => s.syllabi[s.programme]);

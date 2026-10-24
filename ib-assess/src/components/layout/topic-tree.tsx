@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, Search } from "lucide-react";
-import { useAppStore } from "@/lib/store";
+import { useAppStore, useActiveSyllabus } from "@/lib/store";
 import type { Topic } from "@/types/syllabus";
 import { cn } from "@/lib/utils";
 
 /** Collapsible Topic → Subtopic hierarchy for the active syllabus, with a filter box. */
 export function TopicTree() {
-  const syllabus = useAppStore((s) => s.syllabus);
+  const syllabus = useActiveSyllabus();
   const selected = useAppStore((s) => s.selectedSubtopicId);
   const select = useAppStore((s) => s.selectSubtopic);
   const [query, setQuery] = useState("");

@@ -2,10 +2,10 @@
 
 import { BookOpenCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useAppStore } from "@/lib/store";
+import { useAppStore, useActiveSyllabus } from "@/lib/store";
 
 export function SubtopicDetail() {
-  const syllabus = useAppStore((s) => s.syllabus);
+  const syllabus = useActiveSyllabus();
   const selectedId = useAppStore((s) => s.selectedSubtopicId);
 
   const match = syllabus.topics
@@ -45,6 +45,28 @@ export function SubtopicDetail() {
           </li>
         ))}
       </ul>
+      {syllabus.programme === "MYP" && (syllabus.keyConcepts?.length || syllabus.globalContexts?.length) ? (
+        <div className="mt-5 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2">
+          <ConceptList title="Key concepts" items={syllabus.keyConcepts} />
+          <ConceptList title="Global contexts" items={syllabus.globalContexts} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ConceptList({ title, items }: { title: string; items?: string[] }) {
+  if (!items?.length) return null;
+  return (
+    <div>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</p>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {items.map((i) => (
+          <Badge key={i} variant="secondary">
+            {i}
+          </Badge>
+        ))}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "IB Assess",
-  description: "IB-style practice papers, markschemes and an exam environment with Desmos tools.",
+  description: "IB DP and MYP practice papers, markschemes and an exam environment with Desmos tools.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

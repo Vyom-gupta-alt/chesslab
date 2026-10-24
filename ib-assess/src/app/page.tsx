@@ -2,11 +2,12 @@ import Link from "next/link";
 import { ArrowRight, FileText, Timer, Upload } from "lucide-react";
 import { SubtopicDetail } from "@/components/workspace/subtopic-detail";
 import { AnswerBox } from "@/components/workspace/answer-box";
+import { CriteriaCard } from "@/components/workspace/criteria-card";
 
 const ACTIONS = [
   { href: "/syllabus", icon: Upload, title: "Ingest a subject guide", body: "Upload a syllabus PDF or paste text to build the topic tree." },
-  { href: "/generate", icon: FileText, title: "Generate a paper", body: "Paper 1/2/3 with markschemes, mapped to topics and command terms." },
-  { href: "/exam", icon: Timer, title: "Exam mode", body: "Timed split-screen test with Desmos, formula sheet and auto-grading." },
+  { href: "/generate", icon: FileText, title: "Generate a paper", body: "DP Papers 1–3 or MYP eAssessment-style tasks, mapped to topics and command terms." },
+  { href: "/exam", icon: Timer, title: "Exam mode", body: "Timed split-screen test with Desmos, formula sheet and auto-grading (DP 1–7 or MYP criteria A–D)." },
 ];
 
 export default function WorkspacePage() {
@@ -15,7 +16,7 @@ export default function WorkspacePage() {
       <section>
         <h1 className="text-2xl font-semibold">Workspace</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Browse the syllabus, then practise with Desmos open beside you.
+          Pick DP or MYP in the sidebar, browse the syllabus, then practise with Desmos open beside you.
         </p>
       </section>
 
@@ -33,6 +34,10 @@ export default function WorkspacePage() {
 
       <section>
         <SubtopicDetail />
+      </section>
+
+      <section>
+        <CriteriaCard />
       </section>
 
       <section className="space-y-2">
