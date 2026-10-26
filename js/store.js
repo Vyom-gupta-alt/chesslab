@@ -57,6 +57,15 @@ export async function loadAll() {
   } catch (e) { console.warn('Storage unavailable, running in memory', e); }
 }
 
+/** Wipe everything this browser has stored (games, analysis, puzzles, goals, usernames). */
+export async function resetAll() {
+  Object.assign(state, {
+    games: {}, puzzles: {}, goals: [], activity: {}, repertoire: {},
+    pstats: { rating: 1500, themes: {}, history: [] }, settings: { ...DEFAULT_SETTINGS, lastSync: {} },
+  });
+  for (const k of KEYS) await idbSet(k, state[k]);
+}
+
 const timers = {};
 export function save(key) {
   clearTimeout(timers[key]);

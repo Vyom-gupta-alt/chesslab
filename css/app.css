@@ -52,6 +52,11 @@ h3 { font-size: 15px; }
 .nav .badge { margin-left: auto; background: var(--red); color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 11px; }
 .side-status { margin-top: auto; background: var(--panel); border-radius: 8px; padding: 10px; font-size: 12px; }
 .side-status .bar { margin: 6px 0; }
+.side-account { margin-top: 10px; padding: 10px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.side-status:not([hidden]) + .side-account { margin-top: 10px; }
+.side-status[hidden] + .side-account { margin-top: auto; }
+.side-account b { color: var(--text); word-break: break-all; }
+.side-account button { margin-top: 8px; width: 100%; }
 
 .view { flex: 1; padding: 24px 28px 60px; min-width: 0; max-width: 1400px; }
 

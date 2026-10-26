@@ -1,9 +1,9 @@
-import { loadAll, state, save } from './store.js';
+import { loadAll, state, save, resetAll } from './store.js';
 import { tagOpenings } from './openings.js';
 import { analyzer } from './analyzer.js';
 import { duePuzzles } from './training.js';
 import { syncAccounts } from './importers.js';
-import { $, $$, esc, toast } from './ui.js';
+import { $, $$, esc, toast, confirmBox } from './ui.js';
 
 const routes = {
   dashboard: () => import('./views/dashboard.js'),
@@ -39,6 +39,7 @@ async function route() {
   window.scrollTo(0, 0);
   current = mod;
   $$('.nav a').forEach(a => a.classList.toggle('active', a.dataset.route === (key === 'review' ? 'games' : key)));
+  renderAccount();
   try { await mod.render(view, params); }
   catch (e) { console.error(e); view.innerHTML = `<div class="card"><h2>Something went wrong</h2><p class="muted">${esc(e.message)}</p></div>`; }
 }
@@ -60,6 +61,24 @@ function renderAnalyzerStatus() {
     <div class="bar"><i style="width:${Math.round(analyzer.progress * 100)}%"></i></div>
     <div class="muted small">${analyzer.queue.length ? `${analyzer.queue.length} more queued` : 'Last one'}</div>`;
   $('#an-cancel').onclick = e => { e.preventDefault(); analyzer.cancelAll(); };
+}
+
+/** Sidebar footer: whose games are loaded in this browser, with a one-click "start fresh". */
+export function renderAccount() {
+  const el = $('#account');
+  const s = state.settings;
+  const names = [s.chesscomUser && `Chess.com: <b>${esc(s.chesscomUser)}</b>`, s.lichessUser && `Lichess: <b>${esc(s.lichessUser)}</b>`].filter(Boolean);
+  const n = Object.keys(state.games).length;
+  if (!names.length && !n) { el.innerHTML = '<span>No games loaded. Your data stays in this browser only.</span>'; return; }
+  el.innerHTML = `${names.length ? names.join('<br>') : 'Pasted games'}<br>${n} game${n === 1 ? '' : 's'} saved in this browser
+    <button class="btn sm" id="acc-reset">Start fresh</button>`;
+  $('#acc-reset').onclick = async () => {
+    if (!await confirmBox('Remove all games, analysis, puzzles, goals and saved usernames from this browser? Nothing on Chess.com or Lichess is affected. This can\'t be undone.', 'Start fresh')) return;
+    analyzer.cancelAll();
+    await resetAll();
+    location.hash = '#/dashboard';
+    location.reload();
+  };
 }
 
 export function applyBoardTheme() { document.body.dataset.board = state.settings.boardTheme || 'green'; }
@@ -85,6 +104,7 @@ async function init() {
   if (s.autoSync && (s.chesscomUser || s.lichessUser)) {
     const { added, errors } = await syncAccounts();
     if (added) {
+      renderAccount();
       toast(`Synced ${added} new game${added > 1 ? 's' : ''}`, 'success');
       if (/^#\/(dashboard|games)?$/.test(location.hash) || !location.hash) route();
     }
