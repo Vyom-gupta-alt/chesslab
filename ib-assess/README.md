@@ -4,7 +4,7 @@ AssessPrep-style IB practice and assessment app for the **Diploma Programme (DP)
 
 Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui (Radix), Framer Motion, Zustand and Zod.
 
-**Open it:** https://vyom-gupta-alt.github.io/grade-maxxer/
+**Open it:** https://vyom-gupta-alt.github.io/Grade-maxxer/
 
 Everyone starts fresh: nothing is preloaded, and everything a student does is saved only in their own browser.
 
@@ -17,14 +17,21 @@ You need [Node.js 18 or newer](https://nodejs.org) and [Git](https://git-scm.com
 **Any OS:**
 
 ```bash
-git clone https://github.com/vyom-gupta-alt/grade-maxxer.git
-cd grade-maxxer
+git clone https://github.com/Vyom-gupta-alt/Grade-maxxer.git
+cd Grade-maxxer
 cp .env.example .env.local   # optional: add your own Desmos key
 npm install
 npm run dev                  # http://localhost:3000
 ```
 
 `npm run typecheck`, `npm run lint` and `npm run build` should all pass.
+
+## Uploading a syllabus
+
+The **Syllabus** page takes screenshots (drag in, pick, or paste with Ctrl+V), phone photos, PDFs and pasted text, then shows an editable topic tree to check before saving. A new upload can replace the current syllabus or be added to it, so a guide can be uploaded a few screenshots at a time.
+
+- **Free mode** runs entirely in the browser: pdf.js reads PDFs, Tesseract.js reads images and scanned pages, and a rule-based parser (`src/lib/ingest/heuristic.ts`) builds the tree from the guide's numbering (1, 1.2, SL/AHL 1.2, A.1).
+- **AI mode** sends the files to Claude (`claude-opus-5-5`, structured JSON output, `src/lib/ingest/ai.ts`) using an API key the user pastes in. The key is sent only to Anthropic's API and is stored in the browser only if the user ticks "Remember".
 
 ## DP and MYP
 
@@ -43,7 +50,7 @@ Switch programme with the **DP / MYP** toggle at the top of the sidebar. Each pr
 | --- | --- |
 | 1. App shell: top bar with calculator launchers, syllabus sidebar, workspace | Done |
 | 2. Desmos wrapper + slide-over calculator panel | Done |
-| 3. Syllabus ingestion (PDF / text → Claude → `SyllabusSchema`) | Next |
+| 3. Syllabus upload: screenshots, photos, PDFs, pasted text → editable topic tree | Done |
 | 4. Paper generator + split-screen exam environment, KaTeX, AI grading | Planned |
 
 ## Layout

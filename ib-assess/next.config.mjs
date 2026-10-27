@@ -1,6 +1,6 @@
 /**
  * Static export so the app can be hosted on GitHub Pages.
- * NEXT_PUBLIC_BASE_PATH is set to "/grade-maxxer" by the deploy workflow; local dev runs at "/".
+ * NEXT_PUBLIC_BASE_PATH is set to "/<repo name>" by the deploy workflow; local dev runs at "/".
  */
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
