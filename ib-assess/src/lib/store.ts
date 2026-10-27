@@ -14,7 +14,7 @@ const safeStorage = {
     try { return localStorage.getItem(k); } catch { return null; }
   },
   setItem: (k: string, v: string) => {
-    try { localStorage.setItem(k, v); } catch (e) { console.warn("[ib-assess] could not persist state", e); }
+    try { localStorage.setItem(k, v); } catch (e) { console.warn("[grade-maxxer] could not persist state", e); }
   },
   removeItem: (k: string) => {
     try { localStorage.removeItem(k); } catch { /* ignore */ }
@@ -59,10 +59,12 @@ interface AppState {
   // Programme & syllabus (one active syllabus per programme)
   programme: Programme;
   setProgramme: (p: Programme) => void;
-  syllabi: Record<Programme, Syllabus>;
+  /** Empty until the user uploads a guide or loads a sample. */
+  syllabi: Record<Programme, Syllabus | null>;
   selectedSubtopicId: string | null;
   /** Stores the syllabus under its own programme and switches to it. */
   setSyllabus: (s: Syllabus) => void;
+  loadSampleSyllabus: (p: Programme) => void;
   selectSubtopic: (id: string | null) => void;
 
   // Answer box (placeholder until the exam environment exists)
@@ -101,12 +103,17 @@ export const useAppStore = create<AppState>()(
 
       programme: "DP",
       setProgramme: (programme) => set({ programme, selectedSubtopicId: null }),
-      syllabi: { DP: SAMPLE_DP_SYLLABUS, MYP: SAMPLE_MYP_SYLLABUS },
+      syllabi: { DP: null, MYP: null },
       selectedSubtopicId: null,
       setSyllabus: (syllabus) =>
         set((s) => ({
           syllabi: { ...s.syllabi, [syllabus.programme]: syllabus },
           programme: syllabus.programme,
+          selectedSubtopicId: null,
+        })),
+      loadSampleSyllabus: (p) =>
+        set((s) => ({
+          syllabi: { ...s.syllabi, [p]: p === "DP" ? SAMPLE_DP_SYLLABUS : SAMPLE_MYP_SYLLABUS },
           selectedSubtopicId: null,
         })),
       selectSubtopic: (id) => set({ selectedSubtopicId: id }),
@@ -119,18 +126,8 @@ export const useAppStore = create<AppState>()(
       removeAttachment: (id) => set((s) => ({ attachments: s.attachments.filter((a) => a.id !== id) })),
     }),
     {
-      name: "ib-assess",
-      version: 2,
-      // v1 stored a single DP `syllabus`; v2 keeps one per programme.
-      migrate: (persisted, version) => {
-        const old = (persisted ?? {}) as Record<string, unknown>;
-        if (version < 2) {
-          const { syllabus, ...rest } = old as { syllabus?: Syllabus };
-          const dp = syllabus ? { ...syllabus, programme: "DP" as const } : SAMPLE_DP_SYLLABUS;
-          return { ...rest, programme: "DP", syllabi: { DP: dp, MYP: SAMPLE_MYP_SYLLABUS } };
-        }
-        return old;
-      },
+      name: "grade-maxxer",
+      version: 1,
       storage: createJSONStorage(() => safeStorage),
       // Rehydrated manually in <AppShell> after mount so SSR markup matches the first client render.
       skipHydration: true,

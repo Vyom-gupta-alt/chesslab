@@ -17,6 +17,7 @@ export function Sidebar() {
   const programme = useAppStore((s) => s.programme);
   const setProgramme = useAppStore((s) => s.setProgramme);
   const toggle = useAppStore((s) => s.toggleSidebar);
+  const loadSample = useAppStore((s) => s.loadSampleSyllabus);
 
   return (
     <>
@@ -39,22 +40,35 @@ export function Sidebar() {
               ))}
             </TabsList>
           </Tabs>
-          <p className="pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Active syllabus</p>
-          <div>
-            <p className="text-sm font-semibold leading-snug">{syllabus.subject}</p>
-            <div className="mt-1 flex gap-1.5">
-              <Badge variant="secondary">{syllabus.level}</Badge>
-              {syllabus.firstAssessment && <Badge variant="outline">First assessed {syllabus.firstAssessment}</Badge>}
-            </div>
-          </div>
+          {syllabus ? (
+            <>
+              <p className="pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Active syllabus</p>
+              <div>
+                <p className="text-sm font-semibold leading-snug">{syllabus.subject}</p>
+                <div className="mt-1 flex gap-1.5">
+                  <Badge variant="secondary">{syllabus.level}</Badge>
+                  {syllabus.firstAssessment && <Badge variant="outline">First assessed {syllabus.firstAssessment}</Badge>}
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="pt-1 text-sm text-muted-foreground">
+              No {programme} syllabus yet. Upload your subject guide to build your topic list.
+            </p>
+          )}
           <Button asChild variant="outline" size="sm" className="w-full">
             <Link href="/syllabus">
               <Upload /> Upload subject guide
             </Link>
           </Button>
+          {!syllabus && (
+            <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => loadSample(programme)}>
+              Try a sample {programme === "MYP" ? "MYP Maths" : "DP Maths AA"} syllabus
+            </Button>
+          )}
         </div>
         {/* Re-key so expanded/filter state resets when the programme changes. */}
-        <TopicTree key={programme} />
+        <TopicTree key={`${programme}:${syllabus?.id ?? "none"}`} />
       </aside>
     </>
   );

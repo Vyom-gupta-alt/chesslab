@@ -1,22 +1,24 @@
-# IB Assess
+# Grade Maxxer
 
 AssessPrep-style IB practice and assessment app for the **Diploma Programme (DP)** and **Middle Years Programme (MYP)**: syllabus ingestion, AI-generated papers and markschemes, and an exam environment with Desmos tools.
 
 Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui (Radix), Framer Motion, Zustand and Zod.
 
-## Run it
+**Open it:** https://vyom-gupta-alt.github.io/grade-maxxer/
+
+Everyone starts fresh: nothing is preloaded, and everything a student does is saved only in their own browser.
+
+## Run it locally
 
 You need [Node.js 18 or newer](https://nodejs.org) and [Git](https://git-scm.com).
 
-**Windows:** clone the repo, open the `ib-assess` folder and double-click `start.bat`. It installs packages the first time and opens http://localhost:3000.
+**Windows:** clone the repo, open the folder and double-click `start.bat`. It installs packages the first time and opens http://localhost:3000.
 
 **Any OS:**
 
 ```bash
-git clone https://github.com/vyom-gupta-alt/chesslab.git
-cd chesslab
-git checkout claude/great-maxwell-cbfdif   # until this branch is merged
-cd ib-assess
+git clone https://github.com/vyom-gupta-alt/grade-maxxer.git
+cd grade-maxxer
 cp .env.example .env.local   # optional: add your own Desmos key
 npm install
 npm run dev                  # http://localhost:3000

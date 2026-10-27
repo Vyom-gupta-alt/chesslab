@@ -66,7 +66,7 @@ export function TopBar() {
       </Button>
       <Link href="/" className="flex items-center gap-2 font-semibold">
         <GraduationCap className="h-5 w-5 text-primary" />
-        <span className="hidden sm:inline">IB Assess</span>
+        <span className="hidden sm:inline">Grade Maxxer</span>
       </Link>
       <nav className="ml-4 hidden items-center gap-1 lg:flex">
         {NAV.map((n) => (

@@ -13,12 +13,13 @@ export function TopicTree() {
   const selected = useAppStore((s) => s.selectedSubtopicId);
   const select = useAppStore((s) => s.selectSubtopic);
   const [query, setQuery] = useState("");
-  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(syllabus.topics.slice(0, 1).map((t) => t.id)));
+  const topics = useMemo(() => syllabus?.topics ?? [], [syllabus]);
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(topics.slice(0, 1).map((t) => t.id)));
 
   const filtered = useMemo<Topic[]>(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return syllabus.topics;
-    return syllabus.topics
+    if (!q) return topics;
+    return topics
       .map((t) => {
         const topicHit = `${t.code} ${t.title}`.toLowerCase().includes(q);
         const subs = t.subtopics.filter((st) =>
@@ -27,7 +28,7 @@ export function TopicTree() {
         return topicHit ? t : subs.length ? { ...t, subtopics: subs } : null;
       })
       .filter((t): t is Topic => t !== null);
-  }, [syllabus, query]);
+  }, [topics, query]);
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -36,6 +37,8 @@ export function TopicTree() {
       else next.add(id);
       return next;
     });
+
+  if (!syllabus) return null;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">

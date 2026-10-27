@@ -6,7 +6,7 @@ import { MYP_GRADE_BOUNDARIES } from "@/lib/grading";
 /** Assessment criteria for the active syllabus; for MYP also the /32 → 1–7 grade boundaries. */
 export function CriteriaCard() {
   const syllabus = useActiveSyllabus();
-  if (!syllabus.criteria.length) return null;
+  if (!syllabus?.criteria.length) return null;
   const isMyp = syllabus.programme === "MYP";
 
   return (

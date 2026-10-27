@@ -6,7 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "IB Assess",
+  title: "Grade Maxxer",
   description: "IB DP and MYP practice papers, markschemes and an exam environment with Desmos tools.",
 };
 

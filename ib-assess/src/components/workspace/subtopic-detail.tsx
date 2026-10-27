@@ -8,15 +8,17 @@ export function SubtopicDetail() {
   const syllabus = useActiveSyllabus();
   const selectedId = useAppStore((s) => s.selectedSubtopicId);
 
-  const match = syllabus.topics
+  const match = syllabus?.topics
     .flatMap((t) => t.subtopics.map((st) => ({ topic: t, st })))
     .find(({ st }) => st.id === selectedId);
 
-  if (!match) {
+  if (!syllabus || !match) {
     return (
       <div className="flex items-center gap-3 rounded-lg border border-dashed p-5 text-sm text-muted-foreground">
         <BookOpenCheck className="h-5 w-5 shrink-0" />
-        Pick a subtopic from the sidebar to see its learning outcomes and command terms.
+        {syllabus
+          ? "Pick a subtopic from the sidebar to see its learning outcomes and command terms."
+          : "No syllabus yet. Upload your subject guide, or load a sample from the sidebar to look around."}
       </div>
     );
   }
