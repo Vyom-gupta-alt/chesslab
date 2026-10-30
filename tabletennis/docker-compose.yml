@@ -1,0 +1,35 @@
+services:
+  redis:
+    image: redis:7.4-alpine
+    ports: ["6379:6379"]
+
+  api:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    env_file: .env
+    environment:
+      TT_REDIS_URL: redis://redis:6379/0
+    volumes: ["storage:/data"]
+    ports: ["8000:8000"]
+    depends_on: [redis]
+
+  worker:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    command: celery -A app.workers.celery_app worker -Q analysis,ffmpeg --concurrency=2 --loglevel=info
+    env_file: .env
+    environment:
+      TT_REDIS_URL: redis://redis:6379/0
+    volumes: ["storage:/data"]
+    depends_on: [redis]
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    environment:
+      BACKEND_URL: http://api:8000
+    volumes: ["./frontend:/app", "/app/node_modules"]
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+volumes:
+  storage:

@@ -1,0 +1,41 @@
+# ttvision pipeline configuration. Every key is optional; defaults live in
+# ttvision/config.py. Tune per camera setup.
+
+audio:
+  sample_rate: 22050
+  band_low_hz: 2500        # ball-on-bat / ball-on-table click band
+  band_high_hz: 4000
+  min_band_ratio: 0.18     # raise in noisy halls, lower for quiet rooms
+  threshold_k: 4.0
+  min_hit_interval_s: 0.08
+  min_level_above_background_db: 9.0   # how much louder than the room a hit must be
+
+vision:
+  analysis_width: 640
+  analysis_fps: 30
+  table_sample_count: 15
+  table_corners: null      # [[x,y] x4] in analysis pixels to skip auto-detection
+  camera_view: auto        # auto | end (behind a player) | side
+  ball_backend: motion     # motion | yolo
+  yolo_weights: null       # path to a YOLOv11 model fine-tuned on TT balls
+
+rally:
+  pre_roll_s: 1.0          # clip starts 1 s before the serve toss
+  post_roll_s: 0.6
+  min_hits: 3
+  max_hit_gap_s: 1.6
+  min_confidence: 0.35
+
+pose:
+  model_path: null         # MediaPipe .task file; null = download official model once
+  model_complexity: 2      # 0 lite | 1 full | 2 heavy
+  num_poses: 2
+  target_player: near      # near | far | left | right
+  handedness: auto         # right | left | auto
+  min_racket_speed: 1.5    # m/s (relative to hips)
+
+matcher:
+  library_dir: data/pro_library
+  dtw_band_ratio: 0.2
+  resample_length: 60
+  top_k: 3
