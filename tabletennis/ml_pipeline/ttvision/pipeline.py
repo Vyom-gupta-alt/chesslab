@@ -29,16 +29,35 @@ def clip_timecodes(rallies: list[Rally]) -> list[dict[str, float]]:
 
 def analyze_match(video_path: str | Path, config: PipelineConfig | None = None,
                   progress: ProgressFn | None = None, with_pose: bool = True,
-                  classifier: StrokeClassifier | None = None) -> dict[str, Any]:
+                  classifier: StrokeClassifier | None = None,
+                  pose_store: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Run the full analysis.
+
+    `pose_store`, if given, receives the 3D landmark window of every stroke
+    (keyed like `skeletons`, "rally:stroke") so strokes can be compared later.
+    A pose failure (e.g. MediaPipe missing) doesn't lose the rally results;
+    it is reported in `warnings`.
+    """
     config = config or PipelineConfig()
     rallies = RallyDetector(config).detect(video_path, progress)
     log.info("found %d rallies", len(rallies))
 
     skeletons: dict[str, Any] = {}
+    warnings: list[str] = []
     if with_pose and rallies:
         classifier = classifier or StrokeClassifier()
-        with PoseAnalyzer(config.pose) as analyzer:
-            _analyze_rallies(video_path, rallies, analyzer, classifier, skeletons, progress)
+        try:
+            with PoseAnalyzer(config.pose) as analyzer:
+                _analyze_rallies(video_path, rallies, analyzer, classifier, skeletons,
+                                 progress, pose_store)
+        except Exception as exc:  # keep the rally cut even if pose analysis fails
+            log.exception("pose analysis failed")
+            warnings.append(f"Pose analysis unavailable: {exc}")
+            for r in rallies:
+                r.strokes.clear()
+            skeletons.clear()
+            if pose_store is not None:
+                pose_store.clear()
         if progress:
             progress("pose", 1.0)
 
@@ -49,6 +68,7 @@ def analyze_match(video_path: str | Path, config: PipelineConfig | None = None,
         "strokes": strokes,
         "clips": clip_timecodes(rallies),
         "skeletons": skeletons,
+        "warnings": warnings,
         "summary": {
             "rally_count": len(rallies),
             "rally_time": round(sum(r.duration for r in rallies), 2),
@@ -57,7 +77,8 @@ def analyze_match(video_path: str | Path, config: PipelineConfig | None = None,
     }
 
 
-def _analyze_rallies(video_path, rallies, analyzer, classifier, skeletons, progress) -> None:
+def _analyze_rallies(video_path, rallies, analyzer, classifier, skeletons, progress,
+                     pose_store=None) -> None:
     for n, rally in enumerate(rallies):
         if progress:
             progress("pose", n / len(rallies))
@@ -67,7 +88,11 @@ def _analyze_rallies(video_path, rallies, analyzer, classifier, skeletons, progr
             event: StrokeEvent = a.to_event(label, conf)
             event.rally_index = rally.index
             rally.strokes.append(event)
-            skeletons[f"{rally.index}:{k}"] = a.skeleton_track()
+            key = f"{rally.index}:{k}"
+            skeletons[key] = a.skeleton_track()
+            if pose_store is not None:
+                pose_store[key] = {"times": a.times, "world": a.world, "image": a.image,
+                                   "contact_time": a.contact_time, "handedness": a.handedness}
 
 
 def _count(strokes: list[dict[str, Any]]) -> dict[str, int]:

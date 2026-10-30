@@ -8,16 +8,18 @@ services:
     env_file: .env
     environment:
       TT_REDIS_URL: redis://redis:6379/0
+      TT_QUEUE: celery
     volumes: ["storage:/data"]
     ports: ["8000:8000"]
     depends_on: [redis]
 
   worker:
     build: { context: ., dockerfile: backend/Dockerfile }
-    command: celery -A app.workers.celery_app worker -Q analysis,ffmpeg --concurrency=2 --loglevel=info
+    command: celery -A app.workers.celery_app worker -Q analysis --concurrency=1 --loglevel=info
     env_file: .env
     environment:
       TT_REDIS_URL: redis://redis:6379/0
+      TT_QUEUE: celery
     volumes: ["storage:/data"]
     depends_on: [redis]
 

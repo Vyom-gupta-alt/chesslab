@@ -195,8 +195,9 @@ class ProLibrary:
     @staticmethod
     def save(path: str | Path, seq: PoseSequence, *, id: str, player: str, stroke_type: str,
              context: str = "any", handedness: str = "right", contact_time: float | None = None,
-             video_url: str | None = None) -> None:
+             video_url: str | None = None, extra: dict[str, Any] | None = None) -> None:
         Path(path).write_text(json.dumps({
+            **(extra or {}),
             "id": id, "player": player, "stroke_type": stroke_type, "context": context,
             "handedness": handedness, "contact_time": contact_time, "video_url": video_url,
             "times": np.round(seq.times, 4).tolist(),
