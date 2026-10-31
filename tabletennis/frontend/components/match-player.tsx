@@ -36,7 +36,7 @@ export function MatchPlayer({ videoId, duration, fps, rallies, strokes, selected
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState(1);
   const [mode, setMode] = useState<"full" | "rallies">("rallies");
-  const [skeletonOn, setSkeletonOn] = useState(true);
+  const [skeletonOn, setSkeletonOn] = useState(false);
   const [loop, setLoop] = useState(false);
   const [overlayLabel, setOverlayLabel] = useState<string | null>(null);
 
@@ -253,8 +253,8 @@ export function MatchPlayer({ videoId, duration, fps, rallies, strokes, selected
               </button>
             ))}
           </div>
-          <Button size="sm" variant={skeletonOn ? "default" : "outline"} onClick={() => setSkeletonOn((x) => !x)} title="Skeleton overlay (S)">
-            <Bone /> Skeleton
+          <Button size="sm" variant={skeletonOn ? "default" : "outline"} onClick={() => setSkeletonOn((x) => !x)} title="Show body lines over the player (S)">
+            <Bone /> Body lines
           </Button>
           <Button size="sm" variant={loop ? "default" : "outline"} onClick={() => setLoop((x) => !x)}
             disabled={!selected} title="Loop the selected stroke (L)">
@@ -340,7 +340,7 @@ function DualTimeline({ duration, rallies, strokes, t, mode, selectedKey, onSeek
             <span className={cn("h-2.5 w-2.5 rounded-sm", FAMILY_CLASS[f])} /> {f}
           </span>
         ))}
-        <span className="ml-auto hidden sm:inline">Space play · ←/→ frame · Shift+←/→ keyframe · S skeleton · L loop</span>
+        <span className="ml-auto hidden sm:inline">Space play · ←/→ frame · Shift+←/→ keyframe · S body lines · L loop</span>
       </div>
     </div>
   );

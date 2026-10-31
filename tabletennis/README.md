@@ -14,17 +14,17 @@ It runs on your own computer and opens in your browser. Nothing is uploaded anyw
   - macOS: `brew install ffmpeg`
   - Ubuntu: `sudo apt install ffmpeg libegl1 libgles2 python3-venv`
 
-**2. Get the code** on the `claude/eloquent-dijkstra-nps90y` branch. On GitHub, switch to that branch, then
-**Code → Download ZIP** and unzip it. Or with git:
+**2. Get the code.** On https://github.com/Vyom-gupta-alt/TT-analyzer click **Code → Download ZIP** and unzip it.
+Or with git:
 
 ```bash
-git clone -b claude/eloquent-dijkstra-nps90y https://github.com/vyom-gupta-alt/chesslab.git
+git clone https://github.com/Vyom-gupta-alt/TT-analyzer.git
 ```
 
 **3. Start it:**
 
-- Windows: open the `tabletennis` folder and double-click **`start.bat`**
-- macOS / Linux: run `./start.sh` inside the `tabletennis` folder
+- Windows: open the unzipped folder and double-click **`start.bat`**
+- macOS / Linux: run `./start.sh` inside that folder
 
 The first start takes a few minutes while it installs. Then your browser opens **http://localhost:8000**.
 Keep the window open while you use the app, and close it to stop.
@@ -37,7 +37,9 @@ Keep the window open while you use the app, and close it to stop.
    - the rally-only player
    - rally clips to download
    - stroke filter tabs (Serve, Push, Forehand Loop, Backhand Loop…)
-4. Click a stroke to see its backswing, contact and follow-through. Click **Compare with a pro** to compare it.
+4. Click a stroke to see its backswing, contact and follow-through. Click **Compare with a pro** to watch it
+   side by side with a reference. **Body lines** draws the detected joints over the player if you want them;
+   it's off by default.
 
 **For the best results:**
 
@@ -52,7 +54,7 @@ of a pro or coach, open one of their strokes, and click **Save this stroke as a 
 ## What's inside
 
 ```
-tabletennis/
+TT-analyzer/
 ├── start.bat / start.sh        one-click start (Windows / macOS-Linux)
 ├── ml_pipeline/                computer vision + audio engine (Python package `ttvision`)
 │   └── ttvision/

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, Pause, Play, TriangleAlert } from "lucide-react";
 import { media, type CompareResult } from "@/lib/api";
 import {
-  contentRect, drawSkeleton, fitOverlay, mapPhaseTime, phaseAt, phaseRateRatio, sampleTrack, toRect,
+  contentRect, drawSkeleton, mapPhaseTime, phaseAt, phaseRateRatio, sampleTrack, toRect,
 } from "@/lib/skeleton";
 import { fmtTime, strokeLabel } from "@/lib/strokes";
 import { Button } from "@/components/ui/button";
@@ -19,8 +19,7 @@ export function CompareView({ userVideoId, data }: { userVideoId: string; data: 
   const pRef = useRef<HTMLVideoElement>(null);
   const uCanvas = useRef<HTMLCanvasElement>(null);
   const pCanvas = useRef<HTMLCanvasElement>(null);
-  const oCanvas = useRef<HTMLCanvasElement>(null);
-  const [view, setView] = useState<"side" | "overlay">("side");
+  const [showLines, setShowLines] = useState(false);
   const [rate, setRate] = useState(0.5);
   const [playing, setPlaying] = useState(false);
   const [tU, setTU] = useState(user.phase_times.prep_start);
@@ -28,8 +27,8 @@ export function CompareView({ userVideoId, data }: { userVideoId: string; data: 
   const uStart = Math.max(user.phase_times.prep_start - 0.3, user.times[0]);
   const uEnd = Math.min(user.phase_times.follow_end + 0.3, user.times[user.times.length - 1]);
   const proHasVideo = Boolean(pro.video_id);
-  const live = useRef({ rate, view });
-  live.current = { rate, view };
+  const live = useRef({ rate, showLines });
+  live.current = { rate, showLines };
 
   useEffect(() => {
     const u = uRef.current;
@@ -88,31 +87,20 @@ export function CompareView({ userVideoId, data }: { userVideoId: string; data: 
   }
 
   function drawAll(t: number, tp: number) {
-    if (live.current.view === "side") {
-      const u = prep(uCanvas.current);
-      const pts = sampleTrack(user.times, user.landmarks, t);
-      if (u && pts && uRef.current) {
-        drawSkeleton(u.ctx, toRect(pts, contentRect(uRef.current, u.w, u.h)), {
-          color: USER_COLOR, playingArm: user.handedness as "right" | "left",
-        });
-      }
-      const p = prep(pCanvas.current);
-      const ppts = sampleTrack(pro.times, pro.landmarks, tp);
-      if (p && ppts) {
-        const rect = pRef.current ? contentRect(pRef.current, p.w, p.h)
-          : { x: (p.w - p.h) / 2, y: 0, w: p.h, h: p.h };                    // skeleton-only: square
-        drawSkeleton(p.ctx, toRect(ppts, rect), {
-          color: PRO_COLOR, playingArm: pro.handedness as "right" | "left", lineWidth: pRef.current ? 3 : 4,
-        });
-      }
-    } else {
-      const o = prep(oCanvas.current);
-      if (!o) return;
-      const scale = o.h / 2.1;
-      const pp = sampleTrack(pro.times, pro.overlay, tp);
-      const up = sampleTrack(user.times, user.overlay, t);
-      if (pp) drawSkeleton(o.ctx, fitOverlay(pp, o.w, o.h, scale), { color: PRO_COLOR, lineWidth: 4, alpha: 0.85 });
-      if (up) drawSkeleton(o.ctx, fitOverlay(up, o.w, o.h, scale), { color: USER_COLOR, lineWidth: 4 });
+    const u = prep(uCanvas.current);
+    const p = prep(pCanvas.current);
+    if (!live.current.showLines) return;      // canvases cleared: plain video only
+    const pts = sampleTrack(user.times, user.landmarks, t);
+    if (u && pts && uRef.current) {
+      drawSkeleton(u.ctx, toRect(pts, contentRect(uRef.current, u.w, u.h)), {
+        color: USER_COLOR, playingArm: user.handedness as "right" | "left",
+      });
+    }
+    const ppts = sampleTrack(pro.times, pro.landmarks, tp);
+    if (p && ppts && pRef.current) {
+      drawSkeleton(p.ctx, toRect(ppts, contentRect(pRef.current, p.w, p.h)), {
+        color: PRO_COLOR, playingArm: pro.handedness as "right" | "left",
+      });
     }
   }
 
@@ -135,14 +123,9 @@ export function CompareView({ userVideoId, data }: { userVideoId: string; data: 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-md bg-secondary p-0.5">
-          {(["side", "overlay"] as const).map((v) => (
-            <button key={v} onClick={() => setView(v)}
-              className={cn("rounded px-3 py-1 text-sm", view === v ? "bg-background shadow" : "text-muted-foreground")}>
-              {v === "side" ? "Side by side" : "Skeleton overlay"}
-            </button>
-          ))}
-        </div>
+        <Button size="sm" variant={showLines ? "default" : "outline"} onClick={() => setShowLines((x) => !x)}>
+          {showLines ? "Hide body lines" : "Show body lines"}
+        </Button>
         <span className="ml-2 inline-flex items-center gap-3 text-sm">
           <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full" style={{ background: USER_COLOR }} /> You</span>
           <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full" style={{ background: PRO_COLOR }} /> {pro.player}</span>
@@ -150,7 +133,7 @@ export function CompareView({ userVideoId, data }: { userVideoId: string; data: 
         <span className="ml-auto rounded bg-secondary px-2 py-1 text-sm font-medium">{phase}</span>
       </div>
 
-      <div className={cn("grid gap-3", view === "side" ? "md:grid-cols-2" : "hidden")}>
+      <div className="grid gap-3 md:grid-cols-2">
         <Panel title="You">
           <video ref={uRef} src={media.source(userVideoId)} className="aspect-video w-full" muted playsInline
             preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
@@ -160,22 +143,14 @@ export function CompareView({ userVideoId, data }: { userVideoId: string; data: 
           {proHasVideo ? (
             <video ref={pRef} src={media.source(pro.video_id!)} className="aspect-video w-full" muted playsInline preload="auto" />
           ) : (
-            <div className="grid aspect-video w-full place-items-end bg-gradient-to-b from-slate-900 to-slate-800 p-2 text-[11px] text-slate-400">
-              Skeleton only (no video for this reference)
+            <div className="grid aspect-video w-full place-items-center bg-gradient-to-b from-slate-900 to-slate-800 p-6 text-center text-sm text-slate-300">
+              No video for this reference. Upload a pro&apos;s or coach&apos;s match, open one of their strokes and
+              click &ldquo;Save this stroke as a reference&rdquo; to watch them side by side with you.
             </div>
           )}
           <canvas ref={pCanvas} className="pointer-events-none absolute inset-0 h-full w-full" />
         </Panel>
       </div>
-      {view === "overlay" && (
-        <div className="relative overflow-hidden rounded-lg border bg-gradient-to-b from-slate-900 to-slate-800">
-          <canvas ref={oCanvas} className="aspect-video w-full" />
-          <p className="absolute bottom-2 left-3 text-xs text-slate-400">
-            Both players turned to face you and scaled to the same size, centred on the hips.
-          </p>
-        </div>
-      )}
-
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <Button size="icon" onClick={toggle}>{playing ? <Pause /> : <Play />}</Button>
